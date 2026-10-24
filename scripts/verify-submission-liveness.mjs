@@ -29,6 +29,7 @@
 
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { collectSubmissionFiles } from './validate-submissions.mjs';
 
 // ---------------------------------------------------------------------------
@@ -95,7 +96,10 @@ async function safeFetch(url, options = {}, attempt = 1) {
 function extractOwnerFromRepoUrl(raw) {
   if (!raw) return null;
   // Handles: git+https://github.com/owner/repo.git, github:owner/repo, etc.
-  const match = raw.match(/github\.com[:/]([^/]+)\/([^/.]+)/i);
+  const match =
+    raw.match(/github\.com[:/]([^/]+)\/([^/.]+)/i) ??
+    // npm 'github:owner/repo' shorthand (documented above but previously unhandled)
+    raw.match(/^github:([^/]+)\/([^/.]+)/i);
   return match ? match[1].toLowerCase() : null;
 }
 
@@ -283,6 +287,16 @@ async function getNewEntries(yamlPath) {
   return allEntries.filter((s) => !baseSet.has(s.github_url));
 }
 
+export {
+  safeFetch,
+  extractOwnerFromRepoUrl,
+  checkRepoExists,
+  checkLicense,
+  checkPackagePublished,
+  checkOwnerMatch,
+  TRANSIENT_CODES,
+};
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
@@ -388,7 +402,12 @@ async function main() {
   return { failures, warnings, results };
 }
 
-main()
+// Only run when invoked directly, so tests can import the checks.
+const invokedDirectly =
+  process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+
+if (invokedDirectly) {
+  main()
   .then(({ failures, warnings, results }) => {
     console.log('\n========== SUMMARY ==========');
 
@@ -420,3 +439,4 @@ main()
     console.error('Unhandled error in verify-submission-liveness:', err);
     process.exit(1);
   });
+}
