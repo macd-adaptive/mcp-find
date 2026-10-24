@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/images/banner.svg" alt="MCP Find: the open-source MCP server directory" width="900">
+</p>
+
 # MCP Find
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
