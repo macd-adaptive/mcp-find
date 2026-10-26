@@ -32,3 +32,6 @@ mcp-hub/
 /.foundation/
 /.recovery/
 /.mcpfind-tasks/
+
+# IndexNow key file is generated at build time from INDEXNOW_KEY (never commit it)
+apps/web/public/[0-9a-f][0-9a-f]*.txt

@@ -89,7 +89,8 @@ export function main() {
   const checkedOut = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
   if (checkedOut !== range.current) throw new Error('Checkout does not match the verified deployed SHA');
   const urls = changedUrls(range.base, range.current);
-  const key = '441d971f3ef7aa26f8afe37dfc123a8f';
+  const key = process.env.INDEXNOW_KEY;
+  if (!key || !/^[0-9a-f]{32}$/.test(key)) throw new Error('INDEXNOW_KEY env var (32 lowercase hex chars) is required');
   writeFileSync('/tmp/indexnow-payload.json', JSON.stringify({ host: 'mcpfind.org', key,
     keyLocation: `https://mcpfind.org/${key}.txt`, urlList: urls }));
   appendFileSync(process.env.GITHUB_OUTPUT, `count=${urls.length}\n`);

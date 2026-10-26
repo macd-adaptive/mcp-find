@@ -135,7 +135,7 @@ jobs:
         if: ${{ !cancelled() && steps.changed_slugs.outputs.ok == 'true' && steps.changed_slugs.outputs.count != '0' }}
         continue-on-error: true
         env:
-          INDEXNOW_KEY: 441d971f3ef7aa26f8afe37dfc123a8f
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
           SLUGS_FILE: ${{ steps.changed_slugs.outputs.file }}
         run: |
           set -euo pipefail

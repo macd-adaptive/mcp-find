@@ -33,13 +33,16 @@ jobs:
         id: urls
         env:
           GH_TOKEN: ${{ github.token }}
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
         run: node scripts/indexnow-deployment.mjs
       - name: Notify IndexNow
         if: steps.urls.outputs.count != '0'
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
         run: |
           set -euo pipefail
           # Additional ownership verification, never used as deployment proof.
-          key=441d971f3ef7aa26f8afe37dfc123a8f
+          key="${INDEXNOW_KEY:?set the INDEXNOW_KEY Actions secret}"
           if [ "$(curl -fsS --connect-timeout 5 --max-time 10 "https://mcpfind.org/${key}.txt")" != "$key" ]; then
             echo '::error::IndexNow ownership verification failed'
             exit 1
