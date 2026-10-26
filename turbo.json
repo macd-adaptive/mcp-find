@@ -2,9 +2,19 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
-      "env": ["SUPABASE_URL", "SUPABASE_ANON_KEY"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "dist/**"
+      ],
+      "env": [
+        "SUPABASE_URL",
+        "SUPABASE_ANON_KEY",
+        "INDEXNOW_KEY"
+      ]
     },
     "dev": {
       "cache": false,
@@ -12,7 +22,9 @@
     },
     "lint": {},
     "type-check": {
-      "dependsOn": ["^build"]
+      "dependsOn": [
+        "^build"
+      ]
     }
   }
 }
