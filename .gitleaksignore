@@ -1,0 +1,5 @@
+# Publicly hosted upstream IndexNow ownership token, inherited by fork.
+# Exact inherited findings only. See docs/security/indexnow-findings.md.
+c8ad5dbf8917fa06a8e8f277e702d634a827e947:.github/workflows/indexnow-content.yml:generic-api-key:42
+c8ad5dbf8917fa06a8e8f277e702d634a827e947:.github/workflows/sync.yml:generic-api-key:125
+c8ad5dbf8917fa06a8e8f277e702d634a827e947:scripts/indexnow-deployment.mjs:generic-api-key:92
