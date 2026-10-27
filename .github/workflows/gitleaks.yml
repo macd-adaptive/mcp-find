@@ -24,6 +24,8 @@ jobs:
             --output "$RUNNER_TEMP/gitleaks.tar.gz"
           printf '%s  %s\n' a65b5253807a68ac0cafa4414031fd740aeb55f54fb7e55f386acb52e6a840eb "$RUNNER_TEMP/gitleaks.tar.gz" | sha256sum --check --strict
           tar -xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C "$RUNNER_TEMP" gitleaks
+      - name: Verify new synthetic secrets still fail
+        run: node scripts/check-gitleaks-baseline.mjs "$RUNNER_TEMP/gitleaks"
       - name: Scan all fetched history, including merge diffs
         shell: bash
         run: |
