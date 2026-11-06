@@ -87,6 +87,17 @@ describe('repository owner URL boundaries', () => {
 });
 
 describe('checkRepoExists', () => {
+  for (const data of [null, [], {}, false, {private: 'false'}, {message: 'unavailable'}]) {
+    it(`WARNs instead of asserting public visibility for malformed metadata: ${JSON.stringify(data)}`, async () => {
+      mockFetchSequence([httpResponse(200, data)]);
+      expect((await checkRepoExists('o', 'r', 'tok')).status).toBe('WARN');
+    });
+  }
+  it('WARNs when successful HTTP response contains invalid JSON', async () => {
+    globalThis.fetch = async () => ({ok: true, status: 200, json: async () => { throw new SyntaxError('invalid JSON'); }});
+    expect((await checkRepoExists('o', 'r', 'tok')).status).toBe('WARN');
+  });
+
   it('FAILs on 404 (repo missing or private)', async () => {
     mockFetchSequence([httpResponse(404)]);
     const r = await checkRepoExists('o', 'r', 'tok');

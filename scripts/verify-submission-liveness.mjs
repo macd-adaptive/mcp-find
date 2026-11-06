@@ -136,7 +136,11 @@ async function checkRepoExists(owner, repo, token) {
   }
 
   let data;
-  try { data = await res.json(); } catch { data = {}; }
+  try { data = await res.json(); } catch { data = null; }
+
+  if (!data || Array.isArray(data) || typeof data.private !== 'boolean') {
+    return { status: 'WARN', message: `GitHub returned invalid repository metadata for ${owner}/${repo}; public visibility could not be verified` };
+  }
 
   if (data.private) {
     return { status: 'FAIL', message: `Repo ${owner}/${repo} exists but is private` };
