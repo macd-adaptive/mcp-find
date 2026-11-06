@@ -56,10 +56,12 @@ try {
 }
 
 // --- Validate snapshot shape ---
-const expectedBroken = snapshot.broken_count;
-const expectedTotal = snapshot.total_entries;
-if (typeof expectedBroken !== 'number' || typeof expectedTotal !== 'number') {
-  console.error('ERROR: .build-state/broken-count.json must have numeric broken_count and total_entries fields.');
+const expectedBroken = snapshot?.broken_count;
+const expectedTotal = snapshot?.total_entries;
+if (!Number.isSafeInteger(expectedBroken) || expectedBroken < 0 ||
+    !Number.isSafeInteger(expectedTotal) || expectedTotal <= 0 ||
+    expectedBroken > expectedTotal) {
+  console.error('ERROR: Invalid snapshot: broken_count must be a non-negative safe integer, total_entries a positive safe integer, and broken_count must not exceed total_entries.');
   process.exit(1);
 }
 
