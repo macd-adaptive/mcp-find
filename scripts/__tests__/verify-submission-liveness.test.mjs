@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 import {
+  changedLivenessEntries,
   safeFetch,
   extractOwnerFromRepoUrl,
   checkRepoExists,
@@ -217,5 +218,27 @@ describe('safeFetch', () => {
     expect(r.status).toBe(200);
     expect(await r.json()).toEqual({ a: 1 });
     expect(calls.length).toBe(1);
+  });
+});
+
+
+describe('changedLivenessEntries', () => {
+  const base = {github_url: 'https://github.com/owner/repo', package_type: 'npm', package_name: 'original'};
+  for (const change of [{package_name: 'different'}, {package_type: 'pypi'}, {github_url: 'https://github.com/other/repo'}]) {
+    it(`checks changed liveness metadata: ${JSON.stringify(change)}`, () => {
+      const current = {...base, ...change};
+      expect(changedLivenessEntries([current], [base])).toEqual([current]);
+    });
+  }
+  it('skips unchanged entries and cosmetic edits', () => {
+    expect(changedLivenessEntries([{...base, description: 'Edited', name: 'Edited'}], [base])).toEqual([]);
+  });
+  it('checks a second package even when its repository already existed', () => {
+    const second = {...base, package_name: 'second'};
+    expect(changedLivenessEntries([base, second], [base])).toEqual([second]);
+  });
+  it('checks new entries and ignores removed entries', () => {
+    expect(changedLivenessEntries([base], [])).toEqual([base]);
+    expect(changedLivenessEntries([], [base])).toEqual([]);
   });
 });

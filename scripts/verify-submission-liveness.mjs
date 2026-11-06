@@ -291,13 +291,19 @@ async function getNewEntries(yamlPath) {
 
   let baseData;
   try { baseData = await loadYaml(basYamlText); } catch { baseData = { servers: [] }; }
-  const baseSet = new Set((baseData?.servers ?? []).map((s) => s.github_url));
+  return changedLivenessEntries(allEntries, baseData?.servers ?? []);
+}
 
-  // New = present in head but not in base (keyed by github_url)
-  return allEntries.filter((s) => !baseSet.has(s.github_url));
+// Only fields used by liveness checks identify an unchanged submission.
+// A new package on an existing repository still needs registry/owner checks.
+function changedLivenessEntries(current, previous) {
+  const identity = entry => JSON.stringify([entry.github_url, entry.package_type ?? null, entry.package_name]);
+  const baseSet = new Set(previous.map(identity));
+  return current.filter(entry => !baseSet.has(identity(entry)));
 }
 
 export {
+  changedLivenessEntries,
   safeFetch,
   extractOwnerFromRepoUrl,
   checkRepoExists,
