@@ -9,15 +9,17 @@ export const revalidate = 3600;
 export const maxDuration = 15;
 export const dynamicParams = true;
 export function generateStaticParams(): { surface: string }[] { return []; }
-export async function generateMetadata({ params }: { params: { surface: string } }) {
-  if (params.surface === 'home') return homeMetadata();
-  if (params.surface === 'categories') return categoriesMetadata;
-  if (params.surface === 'servers') return browseMetadata;
+export async function generateMetadata({ params }: { params: Promise<{ surface: string }> }) {
+  const { surface } = await params;
+  if (surface === 'home') return homeMetadata();
+  if (surface === 'categories') return categoriesMetadata;
+  if (surface === 'servers') return browseMetadata;
   notFound();
 }
-export default function DirectoryRoot({ params }: { params: { surface: string } }) {
-  if (params.surface === 'home') return Home();
-  if (params.surface === 'categories') return Categories();
-  if (params.surface === 'servers') return Browse();
+export default async function DirectoryRoot({ params }: { params: Promise<{ surface: string }> }) {
+  const { surface } = await params;
+  if (surface === 'home') return Home();
+  if (surface === 'categories') return Categories();
+  if (surface === 'servers') return Browse();
   notFound();
 }

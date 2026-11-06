@@ -32,9 +32,10 @@ async function materialize(response: Response): Promise<Response> {
   });
 }
 
-export default async function Image({ params }: { params: { slug: string } }) {
+export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   try {
-    const post = getPostBySlug(params.slug);
+    const { slug } = await params;
+    const post = getPostBySlug(slug);
     const title = post
       ? post.frontmatter.title.slice(0, 100)
       : 'MCP Find Blog';

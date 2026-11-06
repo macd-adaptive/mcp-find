@@ -105,12 +105,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (full) {
       // Documented full-purge fallback — explicit opt-in only, see comment
       // above. Never reached by a default/empty-body call.
-      revalidateTag('servers');
+      revalidateTag('servers', { expire: 0 });
     } else {
       for (const slug of slugs) {
-        revalidateTag(`server-${slug}`);
+        revalidateTag(`server-${slug}`, { expire: 0 });
       }
-      revalidateTag('servers-listing');
+      revalidateTag('servers-listing', { expire: 0 });
     }
   } catch (err) {
     console.error('Revalidation failed:', err);

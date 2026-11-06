@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SearchPage({ searchParams }: {
-  searchParams: Record<string, string | undefined>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  return renderServers(searchParams);
+  return renderServers(await searchParams);
 }

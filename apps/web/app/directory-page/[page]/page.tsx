@@ -11,7 +11,8 @@ export const metadata: Metadata = {
 };
 export const dynamicParams = true;
 export function generateStaticParams() { return []; }
-export default async function DirectoryPage({ params }: { params: { page: string } }) {
-  if (!/^\d+$/.test(params.page) || Number(params.page) < 2 || Number(params.page) > 100) notFound();
-  return renderServers({ page: params.page });
+export default async function DirectoryPage({ params }: { params: Promise<{ page: string }> }) {
+  const { page } = await params;
+  if (!/^\d+$/.test(page) || Number(page) < 2 || Number(page) > 100) notFound();
+  return renderServers({ page: page });
 }

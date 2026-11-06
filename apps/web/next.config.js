@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Preserve existing ISR model; no Cache Components/PPR migration in this lot.
+  cacheComponents: false,
   transpilePackages: ["@mcpfind/shared"],
   // Ensure blog MDX content and @vercel/og wasm files are bundled into
   // the opengraph-image serverless function. Without this, Next.js file

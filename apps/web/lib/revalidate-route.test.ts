@@ -78,6 +78,7 @@ describe('POST /api/revalidate — T1 per-slug invalidation', () => {
     expect(res.status).toBe(200);
 
     const calledTags = revalidateTagMock.mock.calls.map((c) => c[0]);
+    expect(revalidateTagMock.mock.calls.every(c => JSON.stringify(c[1]) === JSON.stringify({ expire: 0 }))).toBe(true);
     expect(calledTags).toContain('server-alpha');
     expect(calledTags).toContain('server-beta');
     expect(calledTags).toContain('servers-listing');

@@ -99,18 +99,14 @@ function parseOwnerRepo(githubUrl: string): string | null {
 
 export function ReadmeSection({ readmeContent, githubUrl }: ReadmeSectionProps) {
   const [content, setContent] = useState<string | null>(readmeContent);
-  const [loading, setLoading] = useState(!readmeContent && !!githubUrl);
-  const [error, setError] = useState(false);
+  const ownerRepo = githubUrl ? parseOwnerRepo(githubUrl) : null;
+  const [loading, setLoading] = useState(!readmeContent && !!ownerRepo);
+  const [error, setError] = useState(!readmeContent && !!githubUrl && !ownerRepo);
 
   useEffect(() => {
     if (readmeContent || !githubUrl) return;
 
-    const ownerRepo = parseOwnerRepo(githubUrl);
-    if (!ownerRepo) {
-      setLoading(false);
-      setError(true);
-      return;
-    }
+    if (!ownerRepo) return;
 
     const controller = new AbortController();
 
@@ -133,7 +129,7 @@ export function ReadmeSection({ readmeContent, githubUrl }: ReadmeSectionProps) 
       });
 
     return () => controller.abort();
-  }, [readmeContent, githubUrl]);
+  }, [readmeContent, githubUrl, ownerRepo]);
 
   const showContent = !loading && !error && content;
   const showEmpty = !loading && !showContent;

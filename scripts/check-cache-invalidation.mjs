@@ -290,7 +290,7 @@ function checkA() {
     '.test.tsx',
     '/__tests__/',
   ]);
-  const callRe = /revalidateTag\(\s*(`[^`]*`|'[^']*'|"[^"]*")\s*\)/g;
+  const callRe = /revalidateTag\(\s*(`[^`]*`|'[^']*'|"[^"]*")\s*(?:,|\))/g;
 
   for (const file of files) {
     const content = stripComments(readFileSync(file, 'utf8'));
