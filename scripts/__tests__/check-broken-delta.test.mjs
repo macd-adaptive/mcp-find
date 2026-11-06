@@ -93,6 +93,31 @@ describe("check-broken-delta.mjs smoke tests", () => {
     writeFileSync(tempSnapshotPath, readFileSync(realSnapshotPath, "utf-8"));
   });
 
+  it.each([
+    { broken_count: 0, total_entries: 0 },
+    { broken_count: 0, total_entries: -1000 },
+    { broken_count: 0, total_entries: 1.1 },
+    { broken_count: 0, total_entries: Number.MAX_SAFE_INTEGER + 1 },
+    { broken_count: -1, total_entries: 1 },
+    { broken_count: 0.01, total_entries: 1 },
+    { broken_count: 2, total_entries: 1 },
+    null,
+  ])("rejects invalid snapshot counts: %j", (snapshot) => {
+    writeFileSync(tempMapPath, JSON.stringify({ fixture: "HEALTHY" }));
+    writeFileSync(tempSnapshotPath, JSON.stringify(snapshot));
+    const result = runScript(tempMapPath, tempSnapshotPath);
+    expect(result.exitCode).toBe(1);
+    expect(result.output).toContain("ERROR: Invalid snapshot");
+  });
+
+  it("rejects a JSON numeric overflow instead of bypassing the shrinkage gate", () => {
+    writeFileSync(tempMapPath, JSON.stringify({ fixture: "HEALTHY" }));
+    writeFileSync(tempSnapshotPath, '{"broken_count":0,"total_entries":1e999}');
+    const result = runScript(tempMapPath, tempSnapshotPath);
+    expect(result.exitCode).toBe(1);
+    expect(result.output).toContain("ERROR: Invalid snapshot");
+  });
+
   afterEach(() => {
     // Clean up temp dir; SIGKILL between mutation and here leaves production untouched
     try { rmSync(tempDir, { recursive: true, force: true }); } catch (_) {}
