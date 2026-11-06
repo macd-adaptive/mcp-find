@@ -26,6 +26,7 @@ export default defineConfig({
       // app renders and for what the sitemap reports, so they are covered
       // from here rather than left untested.
       "../../packages/sync/src/**/*.test.ts",
+      "../../packages/mcp-server/test/**/*.test.mjs",
     ],
     coverage: {
       provider: "v8",
