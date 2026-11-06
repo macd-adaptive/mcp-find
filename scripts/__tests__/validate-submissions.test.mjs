@@ -96,6 +96,15 @@ describe('validateDocument', () => {
     });
   }
 
+  for (const field of ['name', 'github_url', 'package_name', 'description']) {
+    for (const value of [123, true, {}, ['a long description with enough characters'], '   ']) {
+      it(`rejects non-text or blank ${field}: ${JSON.stringify(value)}`, () => {
+        const errors = validateDocument('fixture.yml', doc(validEntry({ [field]: value })));
+        expect(errors.some(error => error.includes(field))).toBe(true);
+      });
+    }
+  }
+
   it('rejects a github_url that is not a plain owner/repo URL', () => {
     const errors = validateDocument(
       'submissions/example.yml',
