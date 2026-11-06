@@ -56,6 +56,36 @@ describe('extractOwnerFromRepoUrl', () => {
   });
 });
 
+describe('repository owner URL boundaries', () => {
+  for (const value of [
+  'ssh://git@github.com:22/Owner/Repo.git',
+  'https://github.com/Owner/Repo/issues',
+  'https://github.com/Owner/Repo/tree/main',
+  'https://github.com/Owner/Repo/blob/main/README.md',
+  'git+ssh://git@github.com:Owner/Repo.git',
+  'ssh://git@github.com:Owner/Repo.git',
+  'https://www.github.com/Owner/Repo',
+  'www.github.com/Owner/Repo',
+  'github.com/Owner/Repo',
+'https://github.com:443/Owner/Repo.git', 'git+ssh://git@github.com/Owner/Repo.git', 'git@github.com:Owner/Repo.git']) {
+    it(`recognizes the real GitHub host in ${value}`, () => {
+      expect(extractOwnerFromRepoUrl(value)).toBe('owner');
+    });
+  }
+  for (const value of ['https://example.invalid/github.com/Owner/Repo', 'https://github.com.example.invalid/Owner/Repo', 'https://example.invalid/?next=github.com/Owner/Repo', 'https://github.com@evil.invalid/Owner/Repo', 'https://user:password@github.com/Owner/Repo', 'https://github.com/Owner', 'github:Owner/Repo/extra', {}, 123]) {
+    it(`rejects a non-repository URL or invalid metadata: ${JSON.stringify(value)}`, () => {
+      expect(extractOwnerFromRepoUrl(value)).toBeNull();
+    });
+  }
+  for (const type of ['npm', 'pypi']) {
+    it(`${type} owner matching cannot PASS an embedded hostname`, () => {
+      const url = 'https://example.invalid/github.com/Owner/Repo';
+      const data = type === 'npm' ? {repository: {url}} : {info: {project_urls: {Source: url}}};
+      expect(checkOwnerMatch(type, data, 'owner', 'fixture-package').status).toBe('WARN');
+    });
+  }
+});
+
 describe('checkRepoExists', () => {
   it('FAILs on 404 (repo missing or private)', async () => {
     mockFetchSequence([httpResponse(404)]);
