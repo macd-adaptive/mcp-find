@@ -4,7 +4,7 @@ const queries = vi.hoisted(() => ({ getIndexableServerCount: vi.fn(), getServers
   getSitemapShardLastmod: vi.fn(), getIndexableSitemapMaxLastmod: vi.fn(), getCategoryLastUpdated: vi.fn() }));
 vi.mock('@/lib/queries', () => queries);
 vi.mock('@/lib/sitemap-static-pages', () => ({ getStaticSitemapEntries: vi.fn(async () => []), getStaticSitemapLastmod: vi.fn(async () => null) }));
-vi.mock('next/navigation', () => ({ notFound: () => { throw Object.assign(new Error('Not found'), { digest: 'NEXT_NOT_FOUND' }); } }));
+vi.mock('next/navigation', () => ({ notFound: () => { throw Object.assign(new Error('Not found'), { digest: 'NEXT_HTTP_ERROR_FALLBACK;404' }); } }));
 import { SITEMAP_CACHE_CONTROL } from './sitemap-lastmod';
 import { getServersSitemapBatch } from './sitemap-servers';
 

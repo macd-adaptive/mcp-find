@@ -37,7 +37,7 @@ describe('blog opengraph-image', () => {
     // alone (`new ImageResponse(...)`) never throws, per @vercel/og's
     // async-start-callback implementation. So this test must consume the
     // stream, not just assert the handler returns a Response synchronously.
-    const response = await Image({ params: { slug: mockPost.slug } });
+    const response = await Image({ params: Promise.resolve({ slug: mockPost.slug }) });
 
     expect(response).toBeInstanceOf(Response);
 
@@ -72,7 +72,7 @@ describe('blog opengraph-image', () => {
       throw new Error('simulated frontmatter parse failure');
     });
 
-    const response = await Image({ params: { slug: mockPost.slug } });
+    const response = await Image({ params: Promise.resolve({ slug: mockPost.slug }) });
 
     expect(response.status).toBe(302);
     expect(response.headers.get('location')).toBe('/og-image-mcp.png');

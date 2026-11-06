@@ -14,8 +14,9 @@ const LIMIT = 100;
 const WINDOW_MS = 60_000;
 
 function getClientIp(request: NextRequest): string {
-  // Vercel provides request.ip; fallback to rightmost x-forwarded-for (proxy-appended)
-  if (request.ip) return request.ip;
+  // Next 15 removed request.ip. Preserve the existing proxy-appended,
+  // rightmost x-forwarded-for fallback. This best-effort limiter assumes a
+  // trusted ingress that overwrites/appends this header; it is not an auth boundary.
   const forwarded = request.headers.get('x-forwarded-for');
   if (forwarded) {
     const parts = forwarded.split(',');
@@ -24,7 +25,7 @@ function getClientIp(request: NextRequest): string {
   return 'unknown';
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // Keep arbitrary queries off the canonical ISR page without changing public URLs.
   const browseQuery = request.nextUrl.pathname === '/servers' && request.nextUrl.search !== '';
   // Internal ISR entry points are not independent public URLs.

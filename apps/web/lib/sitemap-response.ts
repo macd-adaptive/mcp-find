@@ -15,7 +15,7 @@ export async function serveSitemap(render: () => Promise<Response>): Promise<Res
   try {
     return await render();
   } catch (error) {
-    const missing = error instanceof Error && 'digest' in error && error.digest === 'NEXT_NOT_FOUND';
+    const missing = error instanceof Error && 'digest' in error && (error.digest === 'NEXT_NOT_FOUND' || error.digest === 'NEXT_HTTP_ERROR_FALLBACK;404');
     if (!missing) console.warn('[sitemap] Generation unavailable; not publishing partial XML.');
     return new Response(missing ? 'Sitemap not found' : 'Sitemap temporarily unavailable', {
       status: missing ? 404 : 503,

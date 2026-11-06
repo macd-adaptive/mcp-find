@@ -66,6 +66,9 @@ jobs:
       # compiled before anything type-checks against it.
       - name: Build @mcpfind/shared
         run: pnpm --filter @mcpfind/shared build
+      # Next 16 no longer lints during next build; keep lint an explicit gate.
+      - name: Lint
+        run: pnpm lint
       - name: Type check
         run: pnpm type-check
 

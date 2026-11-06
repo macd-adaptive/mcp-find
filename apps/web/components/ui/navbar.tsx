@@ -17,12 +17,14 @@ export function Navbar({ variant: _variant }: NavbarProps) {
   const lastScrollY = useRef(0);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Reset visibility and close menu on route change
-  useEffect(() => {
+  // Reset derived UI state during a route transition, before committing stale UI.
+  const [previousPathname, setPreviousPathname] = useState(pathname);
+  if (previousPathname !== pathname) {
+    setPreviousPathname(pathname);
     setVisible(true);
     setMenuOpen(false);
-    lastScrollY.current = 0;
-  }, [pathname]);
+  }
+  useEffect(() => { lastScrollY.current = 0; }, [pathname]);
 
   // Close menu on outside click
   useEffect(() => {

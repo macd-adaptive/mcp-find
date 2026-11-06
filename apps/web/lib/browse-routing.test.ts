@@ -1,11 +1,18 @@
 import { describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
-import { middleware } from '../middleware';
+import { proxy as middleware } from '../proxy';
 import { normalizeListParams, parseFilterParams } from './filter-utils';
 
 function request(path: string) { return new NextRequest(`https://mcpfind.org${path}`); }
 
 describe('finite browse route separation', () => {
+  it('keeps proxy rate limiting and Retry-After on one forwarded IP', () => {
+    const req = new NextRequest('https://mcpfind.org/api/test', {headers: {'x-forwarded-for': '198.51.100.77'}});
+    for (let i=0; i<100; i++) expect(middleware(req).status).toBe(200);
+    const limited = middleware(req);
+    expect(limited.status).toBe(429);
+    expect(Number(limited.headers.get('Retry-After'))).toBeGreaterThan(0);
+  });
   it('leaves canonical browsing on its ISR page', () => {
     expect(middleware(request('/servers')).headers.get('x-middleware-rewrite')).toBe('https://mcpfind.org/directory-root/servers');
     expect(middleware(request('/')).headers.get('x-middleware-rewrite')).toBe('https://mcpfind.org/directory-root/home');
