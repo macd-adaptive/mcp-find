@@ -150,18 +150,21 @@ export function validateEntry(server) {
     return ['entry is not a mapping'];
   }
 
-  if (!server.name) errors.push('missing `name`');
-  if (!server.github_url) errors.push('missing `github_url`');
-  if (!server.package_name) errors.push('missing `package_name`');
-  if (!server.description) errors.push('missing `description`');
+  for (const field of ['name', 'github_url', 'package_name', 'description']) {
+    const value = server[field];
+    if (value == null || value === '') errors.push(`missing \`${field}\``);
+    else if (typeof value !== 'string' || !value.trim()) {
+      errors.push(`\`${field}\` must be a non-empty string`);
+    }
+  }
 
-  if (server.github_url && !GITHUB_URL_RE.test(server.github_url)) {
+  if (typeof server.github_url === 'string' && server.github_url && !GITHUB_URL_RE.test(server.github_url)) {
     errors.push(
       `\`github_url\` must be a plain repo URL (https://github.com/owner/repo), got "${server.github_url}"`
     );
   }
 
-  if (server.description && server.description.length < MIN_DESCRIPTION_LENGTH) {
+  if (typeof server.description === 'string' && server.description && server.description.length < MIN_DESCRIPTION_LENGTH) {
     errors.push(`\`description\` must be at least ${MIN_DESCRIPTION_LENGTH} characters`);
   }
 
