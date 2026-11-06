@@ -94,13 +94,19 @@ async function safeFetch(url, options = {}, attempt = 1) {
 // Normalise a repository URL string from package metadata into owner/repo
 // ---------------------------------------------------------------------------
 function extractOwnerFromRepoUrl(raw) {
-  if (!raw) return null;
-  // Handles: git+https://github.com/owner/repo.git, github:owner/repo, etc.
-  const match =
-    raw.match(/github\.com[:/]([^/]+)\/([^/.]+)/i) ??
-    // npm 'github:owner/repo' shorthand (documented above but previously unhandled)
-    raw.match(/^github:([^/]+)\/([^/.]+)/i);
-  return match ? match[1].toLowerCase() : null;
+  if (typeof raw !== 'string' || !raw || raw !== raw.trim() || /[\\\x00-\x20\x7f]/.test(raw)) return null;
+  const shorthand = raw.match(/^github:([^/]+)\/([^/]+)\/?$/i);
+  if (shorthand) return shorthand[1].toLowerCase();
+  const normalized = raw.replace(/^git\+/, '')
+    .replace(/^ssh:\/\/git@github\.com:(?!\d+\/)/i, 'ssh://git@github.com/')
+    .replace(/^git@github\.com:/i, 'ssh://git@github.com/')
+    .replace(/^(?:www\.)?github\.com\//i, 'https://$&');
+  let url;
+  try { url = new URL(normalized); } catch { return null; }
+  if (!['github.com', 'www.github.com'].includes(url.hostname.toLowerCase()) || !['https:', 'http:', 'ssh:', 'git:'].includes(url.protocol)) return null;
+  if (url.password || (url.username && !(url.protocol === 'ssh:' && url.username === 'git'))) return null;
+  const path = url.pathname.match(/^\/([^/]+)\/([^/]+)(?:\/.*)?$/);
+  return path ? path[1].toLowerCase() : null;
 }
 
 // ---------------------------------------------------------------------------
