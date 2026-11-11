@@ -15,11 +15,12 @@ describe.each(clients)('environment data keys for %s', (client) => {
     const parsed = JSON.parse(JSON.stringify(generated.config));
     const env = parsed[CLIENT_CONFIGS[client].topLevelKey].synthetic.env;
     expect(Object.hasOwn(env, '__proto__')).toBe(true);
-    expect(env.__proto__).toBe('synthetic proto value');
+    expect(Object.getOwnPropertyDescriptor(env, '__proto__')?.value).toBe('synthetic proto value');
     expect(env.constructor).toBe('synthetic constructor value');
     expect(env.API_KEY).toBe('YOUR_API_KEY');
     expect(generated.placeholders).toEqual(['__proto__', 'API_KEY']);
-    expect(Object.getPrototypeOf(generated.config[CLIENT_CONFIGS[client].topLevelKey].synthetic.env)).toBe(Object.prototype);
+    const section = generated.config[CLIENT_CONFIGS[client].topLevelKey] as { synthetic: { env: Record<string, string> } };
+    expect(Object.getPrototypeOf(section.synthetic.env)).toBe(Object.prototype);
   });
 
   it('keeps normal configuration output byte-for-byte compatible with the previous algorithm', () => {
