@@ -3,7 +3,7 @@ globalThis.fetch = function (input) {
   return Promise.resolve().then(() => {
     const url = new URL(String(input));
     if (url.origin !== 'https://mcp-test.invalid') throw new Error('Unexpected API origin');
-    let body;
+    let body = {};
     let status = 200;
     const fixture = {name: 'Fixture', slug: 'fixture', category: 'databases', github_stars: 42, tools: []};
     if (url.pathname === '/api/servers') {
