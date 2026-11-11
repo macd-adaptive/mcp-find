@@ -63,7 +63,8 @@ export const VALID_PACKAGE_TYPES = ['npm', 'pypi', 'docker'];
 export const REGISTRY_FILE = 'community-servers.yml';
 export const SUBMISSIONS_DIR = 'submissions';
 
-export const GITHUB_URL_RE = /^https:\/\/github\.com\/[^/]+\/[^/]+\/?$/;
+// A plain repo URL has no query, fragment, URL-normalized backslash, or controls.
+export const GITHUB_URL_RE = /^https:\/\/github\.com\/[^/?#\\\x00-\x20\x7f]+\/[^/?#\\\x00-\x20\x7f]+\/?$/;
 export const MIN_DESCRIPTION_LENGTH = 20;
 
 /**
