@@ -32,10 +32,34 @@ describe('MCP stdio compatibility', () => {
     expect(search.inputSchema.properties.limit.maximum).toBe(20);
     expect(search.inputSchema.properties.limit.default).toBe(10);
   });
+  it('advertises the search boundaries required by the directory API', async () => {
+    const {tools} = await client.listTools();
+    const search = tools.find(t => t.name === 'search_servers');
+    expect(search.inputSchema.properties.query.maxLength).toBe(120);
+    expect(search.inputSchema.properties.limit.type).toBe('integer');
+  });
+  it('accepts the maximum query length and rejects oversized queries at the tool boundary', async () => {
+    const boundary = await client.callTool({name: 'search_servers', arguments: {query: 'x'.repeat(120)}});
+    expect(boundary.isError).not.toBe(true);
+    const oversized = await client.callTool({name: 'search_servers', arguments: {query: 'x'.repeat(121)}});
+    expect(oversized.isError).toBe(true);
+    expect(oversized.content[0].text).toContain('Input validation error');
+  });
+  it('rejects fractional limits at the tool boundary rather than sending them to the API', async () => {
+    const result = await client.callTool({name: 'search_servers', arguments: {query: 'fixture', limit: 1.5}});
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain('Input validation error');
+    expect(result.content[0].text).not.toContain('Schema defaults lost');
+  });
   it('calls search with preserved defaults and serializes the API result', async () => {
     const result = await client.callTool({name: 'search_servers', arguments: {query: 'fixture'}});
     expect(result.isError).not.toBe(true);
     expect(JSON.parse(result.content[0].text)[0]).toMatchObject({slug: 'fixture', stars: 42});
+  });
+  it.each([1, 20])('accepts integer limit boundary %i over stdio', async (limit) => {
+    const result = await client.callTool({name: 'search_servers', arguments: {query: 'limit-boundary', limit}});
+    expect(result.isError).not.toBe(true);
+    expect(JSON.parse(result.content[0].text)[0].slug).toBe('fixture');
   });
   it('rejects schema violations before making an API request', async () => {
     const result = await client.callTool({name: 'search_servers', arguments: {query: 'fixture', limit: 21}});

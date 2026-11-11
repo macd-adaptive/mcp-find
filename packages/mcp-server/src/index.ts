@@ -16,10 +16,10 @@ server.tool(
   'search_servers',
   'Search the MCP server directory. Returns matching servers with metadata, GitHub stats, and install info.',
   {
-    query: z.string().describe('Search query (e.g., "postgres", "slack", "file system")'),
+    query: z.string().max(120).describe('Search query (e.g., "postgres", "slack", "file system")'),
     category: z.enum(CATEGORIES).optional().describe('Filter by category'),
     sort_by: z.enum(['stars', 'updated', 'name', 'downloads']).optional().default('stars').describe('Sort results'),
-    limit: z.number().min(1).max(20).optional().default(10).describe('Max results (1-20)'),
+    limit: z.number().int().min(1).max(20).optional().default(10).describe('Max results (1-20)'),
   },
   async ({ query, category, sort_by, limit }) => {
     try {
