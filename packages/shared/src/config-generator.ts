@@ -38,11 +38,10 @@ export function generateConfig(input: ConfigInput, client: ClientType): ConfigOu
 
   // Add environment variables if present
   if (input.envVars && input.envVars.length > 0) {
-    const env: Record<string, string> = {};
-    for (const v of input.envVars) {
-      env[v.name] = v.placeholder;
-    }
-    serverEntry.env = env;
+    // Environment names are data keys, including "__proto__". Creating own
+    // entries avoids the legacy prototype setter while preserving JSON order
+    // and last-value-wins behavior for duplicate names.
+    serverEntry.env = Object.fromEntries(input.envVars.map(v => [v.name, v.placeholder]));
   }
 
   // Build the full config object with client-specific top-level key
