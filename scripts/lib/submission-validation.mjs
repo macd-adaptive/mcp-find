@@ -63,8 +63,16 @@ export const VALID_PACKAGE_TYPES = ['npm', 'pypi', 'docker'];
 export const REGISTRY_FILE = 'community-servers.yml';
 export const SUBMISSIONS_DIR = 'submissions';
 
-// A plain repo URL has no query, fragment, URL-normalized backslash, or controls.
-export const GITHUB_URL_RE = /^https:\/\/github\.com\/[^/?#\\\x00-\x20\x7f]+\/[^/?#\\\x00-\x20\x7f]+\/?$/;
+// Shape only; use isPlainGitHubRepoUrl for the ASCII control/space boundary too.
+export const GITHUB_URL_RE = /^https:\/\/github\.com\/[^/?#\\]+\/[^/?#\\]+\/?$/u;
+export function isPlainGitHubRepoUrl(value) {
+  if (typeof value !== 'string') return false;
+  for (const character of value) {
+    const code = character.codePointAt(0);
+    if (code <= 32 || code === 127) return false;
+  }
+  return GITHUB_URL_RE.test(value);
+}
 export const MIN_DESCRIPTION_LENGTH = 20;
 
 /**
@@ -159,7 +167,7 @@ export function validateEntry(server) {
     }
   }
 
-  if (typeof server.github_url === 'string' && server.github_url && !GITHUB_URL_RE.test(server.github_url)) {
+  if (typeof server.github_url === 'string' && server.github_url && !isPlainGitHubRepoUrl(server.github_url)) {
     errors.push(
       `\`github_url\` must be a plain repo URL (https://github.com/owner/repo), got "${server.github_url}"`
     );
