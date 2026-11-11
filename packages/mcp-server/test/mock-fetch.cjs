@@ -7,7 +7,10 @@ globalThis.fetch = async function (input) {
   const fixture = {name: 'Fixture', slug: 'fixture', category: 'databases', github_stars: 42, tools: []};
   if (url.pathname === '/api/servers') {
     if (url.searchParams.get('q') === 'fail') return new Response('{}', {status: 503});
-    if (url.searchParams.get('sort') !== 'stars' || url.searchParams.get('limit') !== '10') throw new Error('Schema defaults lost');
+    const expectedLimit = url.searchParams.get('q') === 'limit-boundary'
+      ? ['1', '20'].includes(url.searchParams.get('limit'))
+      : url.searchParams.get('limit') === '10';
+    if (url.searchParams.get('sort') !== 'stars' || !expectedLimit) throw new Error('Schema defaults lost');
     body = {servers: [fixture]};
   } else if (url.pathname === '/api/servers/fixture') body = fixture;
   else if (url.pathname === '/api/servers/fixture/config/cursor') body = {mcpServers: {fixture: {command: 'fixture'}}};
