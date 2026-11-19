@@ -45,3 +45,5 @@ Every PR touching this directory runs:
 
 Both write their results to the GitHub Actions **job summary** on the PR's Checks
 tab. A red check means something needs fixing; open the check to read the details.
+
+Repository URLs must not use `.` or `..` path segments, including percent-encoded dot variants such as `%2e`. These are normalized away by URL parsers and do not identify a plain owner/repository path.

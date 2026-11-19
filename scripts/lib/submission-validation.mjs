@@ -71,7 +71,13 @@ export function isPlainGitHubRepoUrl(value) {
     const code = character.codePointAt(0);
     if (code <= 32 || code === 127) return false;
   }
-  return GITHUB_URL_RE.test(value);
+  if (!GITHUB_URL_RE.test(value)) return false;
+  // WHATWG URL parsing collapses literal and percent-encoded dot segments.
+  // A plain two-segment repo URL must not silently become another path.
+  return !value.slice('https://github.com/'.length).split('/').some(segment => {
+    const dots = segment.replace(/%2e/gi, '.');
+    return dots === '.' || dots === '..';
+  });
 }
 export const MIN_DESCRIPTION_LENGTH = 20;
 
